@@ -17,10 +17,10 @@ TEST_IMAGES_DIR = "test_images"        # Directory containing images to process
 # 0.25 is the YOLO default. We lower it back so it catches the dog on the couch.
 YOLO_CONFIDENCE_THRESHOLD = 0.25
 
-def process_and_categorize(file_path: str):
+def predict_categories(file_path: str):
     if not os.path.exists(file_path):
         print(f"Error: File '{file_path}' not found.")
-        return [], []
+        return []
 
     print(f"Analyzing '{file_path}'...")
     detected_categories = set()
@@ -60,14 +60,14 @@ def process_and_categorize(file_path: str):
         print("No faces or objects detected. Categorizing as 'other'.")
         detected_categories.add("other")
         
-    final_list = list(detected_categories)
-    
-    # 3. Categorize (Link/Copy files)
+    return list(detected_categories)
+
+def apply_categories(file_path: str, categories: list):
     success_paths = []
     file_name = os.path.basename(file_path)
     
-    for category in final_list:
-        target_dir = os.path.join(CATEGORIZED_DIR, category)
+    for category in categories:
+        target_dir = os.path.join(CATEGORIZED_DIR, category.strip())
         os.makedirs(target_dir, exist_ok=True)
         target_path = os.path.join(target_dir, file_name)
         
@@ -89,11 +89,20 @@ def process_and_categorize(file_path: str):
             else:
                 print(f"Error creating link for: {target_path} -> {e}")
                 
-    print(f"Detected categories: {', '.join(final_list)}")
+    return success_paths
+
+def process_and_categorize(file_path: str):
+    categories = predict_categories(file_path)
+    if not categories:
+        return [], []
+        
+    success_paths = apply_categories(file_path, categories)
+    
+    print(f"Detected categories: {', '.join(categories)}")
     print(f"Successfully categorized into: {', '.join(success_paths)}")
     print("-" * 50)
     
-    return final_list, success_paths
+    return categories, success_paths
 
 def main():
     os.makedirs(KNOWN_FACES_DIR, exist_ok=True)
