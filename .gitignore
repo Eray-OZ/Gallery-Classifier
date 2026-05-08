@@ -1,0 +1,8 @@
+yolov8s.pt
+__pycache__
+venv
+known_faces
+categorized_photos
+test_images
+yolov8s.pt
+.DS_Store
