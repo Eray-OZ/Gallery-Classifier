@@ -20,7 +20,7 @@ YOLO_CONFIDENCE_THRESHOLD = 0.25
 def process_and_categorize(file_path: str):
     if not os.path.exists(file_path):
         print(f"Error: File '{file_path}' not found.")
-        return
+        return [], []
 
     print(f"Analyzing '{file_path}'...")
     detected_categories = set()
@@ -57,8 +57,8 @@ def process_and_categorize(file_path: str):
         pass
         
     if not detected_categories:
-        print("No faces or objects detected. Skipping.")
-        return
+        print("No faces or objects detected. Categorizing as 'other'.")
+        detected_categories.add("other")
         
     final_list = list(detected_categories)
     
@@ -92,6 +92,8 @@ def process_and_categorize(file_path: str):
     print(f"Detected categories: {', '.join(final_list)}")
     print(f"Successfully categorized into: {', '.join(success_paths)}")
     print("-" * 50)
+    
+    return final_list, success_paths
 
 def main():
     os.makedirs(KNOWN_FACES_DIR, exist_ok=True)
